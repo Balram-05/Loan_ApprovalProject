@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from data_ingestion import DataIngestion
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
@@ -11,8 +10,8 @@ from sklearn.compose import ColumnTransformer
 class DataPreprocessing:
     def PreProcessData(self, data):
         
-        X = data.drop(['Loan ID', 'Loan Status'], axis=1)
-        y = data['Loan Status']
+        X = data.drop(['Loan_ID', 'Loan_Status'], axis=1)
+        y = data['Loan_Status']
 
         cat_col = X.select_dtypes(include='object').columns
         num_col = X.select_dtypes(exclude='object').columns
