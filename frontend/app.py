@@ -1,5 +1,8 @@
 import streamlit as st
 import requests
+import pandas as pd
+
+feature_importance = pd.read_csv("models/feature_importance.csv")
 
 st.title("Loan Approval Prediction System")
 
@@ -20,6 +23,11 @@ credit_history = st.selectbox("Credit History", [1.0, 0.0])
 property_area = st.selectbox(
     "Property Area",
     ["Urban", "Semiurban", "Rural"]
+)
+st.subheader("Feature Importance")
+
+st.bar_chart(
+    feature_importance.set_index("Feature")
 )
 
 if st.button("Predict Loan Status"):
@@ -47,3 +55,10 @@ if st.button("Predict Loan Status"):
 
     st.subheader("Prediction Result")
     st.success(result["prediction"])
+
+    st.subheader("Approval Probability")
+
+    prob = result["approval_probability"]
+
+    st.progress(prob)
+    st.write(f"Approval Probability: {prob*100:.2f}%")
