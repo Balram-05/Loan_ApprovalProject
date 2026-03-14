@@ -11,7 +11,7 @@ class DataPreprocessing:
     def PreProcessData(self, data):
         
         X = data.drop(['Loan_ID', 'Loan_Status'], axis=1)
-        y = data['Loan_Status']
+        y = data['Loan_Status'].map({'Y':1, 'N':0})
 
         cat_col = X.select_dtypes(include='object').columns
         num_col = X.select_dtypes(exclude='object').columns

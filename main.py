@@ -20,12 +20,12 @@ def home():
 def predict(data: LoanData):
 
     input_data = pd.DataFrame([data.model_dump()])
+    print(input_data)
 
     prediction = model.predict(input_data)
+    prob = model.predict_proba(input_data)
 
-    if prediction[0] == 1:
-        result = "Loan Approved"
-    else:
-        result = "Loan Rejected"
-
-    return {"prediction": result}
+    return {
+        "prediction": "Loan Approved" if prediction[0] == 1 else "Loan Rejected",
+        "approval_probability": float(prob[0][1])
+    }

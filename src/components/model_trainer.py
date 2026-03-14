@@ -1,40 +1,65 @@
 import os
 import joblib
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.pipeline import Pipeline
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.ensemble import GradientBoostingClassifier 
+from sklearn.metrics import accuracy_score, classification_report
 
 class ModelTrainer:
 
     def TrainModel(self, X, y, preprocessor):
-
+        # 1. Split the data
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.2, random_state=42
         )
 
-        # full pipeline (preprocessing + model)
+        # 2. Define the base pipeline with GradientBoosting
         model_pipeline = Pipeline(
             steps=[
                 ("preprocessor", preprocessor),
-                ("model", RandomForestClassifier(random_state=42))
+                ("model", GradientBoostingClassifier(random_state=42))
             ]
         )
 
-        model_pipeline.fit(X_train, y_train)
+        # 3. Define the parameter grid for Gradient Boosting
+        param_grid = {
+            'model__n_estimators': [100, 200],
+            'model__learning_rate': [0.01, 0.1, 0.2],
+            'model__max_depth': [3, 5, 7],
+            'model__subsample': [0.8, 1.0]
+        }
 
-        y_pred = model_pipeline.predict(X_test)
+        print("Starting Hyperparameter Tuning with Gradient Boosting...")
+        
+        # 4. Initialize GridSearchCV
+        grid_search = GridSearchCV(
+            estimator=model_pipeline,
+            param_grid=param_grid,
+            cv=5,
+            scoring='f1_macro', 
+            n_jobs=-1,
+            verbose=1
+        )
 
+        # 5. Fit the model
+        grid_search.fit(X_train, y_train)
+
+        # 6. Extract the best model
+        best_model = grid_search.best_estimator_
+        print(f"Best Parameters found: {grid_search.best_params_}")
+
+        # 7. Evaluate
+        y_pred = best_model.predict(X_test)
         accuracy = accuracy_score(y_test, y_pred)
+        
+        print("\n--- Model Evaluation (Gradient Boosting) ---")
+        print("Best Model Accuracy:", accuracy)
+        print("\nClassification Report:\n", classification_report(y_test, y_pred))
 
-        print("Model Accuracy:", accuracy)
-
-        # create models folder
+        # 8. Save the best model
         os.makedirs("models", exist_ok=True)
+        joblib.dump(best_model, "models/model.pkl")
 
-        # save model
-        joblib.dump(model_pipeline, "models/model.pkl")
+        print("Gradient Boosting model saved successfully!")
 
-        print("Model saved successfully!")
-
-        return model_pipeline
+        return best_model
