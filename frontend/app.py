@@ -47,7 +47,7 @@ if st.button("Predict Loan Status"):
     }
 
     response = requests.post(
-        "http://127.0.0.1:8000/predict",
+        "http://backend:8000/predict",
         json=input_data
     )
 
